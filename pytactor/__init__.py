@@ -1,1 +1,1 @@
-from pytactor.pytactor import VibrotactorArray
+from pytactor.pytactor import *
