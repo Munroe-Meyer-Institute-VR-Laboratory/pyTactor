@@ -14,6 +14,7 @@ class VibrotactorArrayCommands(Enum):
     START_IMU = 0x04
     GET_SIDE = 0x05
     SET_FREQUENCY = 0x06
+    STOP_IMU = 0x07
 
 
 class VibrotactorArraySide(Enum):
@@ -50,8 +51,6 @@ class VibrotactorArray:
         self.uart_service = None
         self.ble = ble
         self.streaming = False
-        self.data = [[] for i in range(12)]
-        self.imu_thread = None
         self.connect()
 
     def connect(self):
@@ -76,11 +75,15 @@ class VibrotactorArray:
         else:
             return False
 
+    def write_all_motors(self, vib_strength):
+        for i in range(0, self.motor_count):
+            self.write_motor_level(i, vib_strength)
+
     def write_motor_level(self, motor_index, vib_strength):
         if self.uart_connection and self.uart_connection.connected and self.uart_service:
             if 0 <= motor_index < self.motor_count:
                 if 0 <= vib_strength <= self.max_vib:
-                    write_motor_command = bytearray([0x01, motor_index, vib_strength])
+                    write_motor_command = bytearray([VibrotactorArrayCommands.WRITE_MOTOR_LEVEL.value, motor_index, vib_strength])
                     self.uart_service.write(write_motor_command)
                 else:
                     return False
@@ -89,11 +92,15 @@ class VibrotactorArray:
         else:
             return False
 
+    def set_all_motors(self, vib_strength):
+        for i in range(0, self.motor_count):
+            self.set_motor_level(i, vib_strength)
+
     def set_motor_level(self, motor_index, vib_strength):
         if self.uart_connection and self.uart_connection.connected and self.uart_service:
             if 0 <= motor_index < self.motor_count:
                 if 0 <= vib_strength <= self.max_vib:
-                    write_motor_command = bytearray([0x02, motor_index, vib_strength])
+                    write_motor_command = bytearray([VibrotactorArrayCommands.SET_MOTOR_LEVEL.value, motor_index, vib_strength])
                     self.uart_service.write(write_motor_command)
                 else:
                     return False
@@ -104,14 +111,14 @@ class VibrotactorArray:
 
     def trigger_vib(self):
         if self.uart_connection and self.uart_connection.connected and self.uart_service:
-            write_motor_command = bytearray([0x03, 0, 0])
+            write_motor_command = bytearray([VibrotactorArrayCommands.TRIGGER_VIB.value, 0, 0])
             self.uart_service.write(write_motor_command)
         else:
             return False
 
     def start_imu(self):
         if self.uart_connection and self.uart_connection.connected and self.uart_service:
-            write_motor_command = bytearray([0x04, 0, 0])
+            write_motor_command = bytearray([VibrotactorArrayCommands.START_IMU.value, 0, 0])
             self.uart_service.write(write_motor_command)
             return_bytes = self.uart_service.read(1)
             try:
@@ -126,11 +133,24 @@ class VibrotactorArray:
             return False
 
     def stop_imu(self):
-        self.streaming = False
+        if self.uart_connection and self.uart_connection.connected and self.uart_service:
+            command = bytearray([VibrotactorArrayCommands.STOP_IMU.value, 0, 0])
+            self.uart_service.write(command)
+            return_bytes = self.uart_service.read(1)
+            try:
+                return_code = VibrotactorArrayReturn(return_bytes)
+                if return_code == VibrotactorArrayReturn.FAIL:
+                    return return_code
+                self.streaming = False
+                return return_code
+            except ValueError:
+                return VibrotactorArrayReturn.ERROR
+        else:
+            return False
 
     def get_side(self):
         if self.uart_connection and self.uart_connection.connected and self.uart_service:
-            write_motor_command = bytearray([VibrotactorArrayCommands.GET_SIDE, 0, 0])
+            write_motor_command = bytearray([VibrotactorArrayCommands.GET_SIDE.value, 0, 0])
             self.uart_service.write(write_motor_command)
             return_bytes = self.uart_service.read(1)
             try:
@@ -142,7 +162,7 @@ class VibrotactorArray:
 
     def set_motor_frequency(self, freq_select):
         if self.uart_connection and self.uart_connection.connected and self.uart_service:
-            set_freq_command = bytearray([VibrotactorArrayCommands.SET_FREQUENCY, freq_select, 0])
+            set_freq_command = bytearray([VibrotactorArrayCommands.SET_FREQUENCY.value, freq_select, 0])
             self.uart_service.write(set_freq_command)
             return_bytes = self.uart_service.read(1)
             try:
@@ -153,7 +173,3 @@ class VibrotactorArray:
     @staticmethod
     def get_ble_instance():
         return BLERadio()
-
-    @staticmethod
-    def parse_data_files():
-        pass

@@ -3,15 +3,14 @@ from pytactor import VibrotactorArray
 
 ble = VibrotactorArray.get_ble_instance()
 vta_1 = VibrotactorArray(ble)
+vta_2 = VibrotactorArray(ble)
 
-vta_1.set_motor_level(1, 200)
+vta_1.set_all_motors(200)
 vta_1.trigger_vib()
+vta_1.start_imu()
 
-time.sleep(2)
+vta_2.set_all_motors(200)
+vta_2.trigger_vib()
+vta_2.start_imu()
 
-# motor_level = 5
-# for i in range(0, 10):
-#     print(f"Writing motor 1 with {motor_level}")
-#     vta_1.write_motor_level(1, motor_level)
-#     motor_level += 25
-#     time.sleep(2)
+time.sleep(10)
