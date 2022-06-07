@@ -4,7 +4,7 @@ with open('README.md') as f:
     readme = f.read()
 
 setup(name='pyTactor',
-      version='0.1.0',
+      version='0.1.1',
       url='https://github.com/Munroe-Meyer-Institute-VR-Laboratory/pyTactor',
       author='Walker Arce',
       author_email='walker.arce@unmc.edu',
@@ -21,7 +21,8 @@ setup(name='pyTactor',
       include_package_data=True,
       packages=['pytactor'],
       install_requires=[
-            'pyserial'
+            'adafruit-blinka-bleio',
+            'adafruit-circuitpython-ble'
       ],
       )
 
