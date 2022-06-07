@@ -155,7 +155,7 @@ class VibrotactorArray:
             return_bytes = self.uart_service.read(1)
             try:
                 return VibrotactorArraySide(return_bytes)
-            except ValueError as ve:
+            except ValueError:
                 return VibrotactorArrayReturn.ERROR
         else:
             return False
