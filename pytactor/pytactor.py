@@ -51,7 +51,10 @@ class VibrotactorArray:
         self.uart_service = None
         self.ble = ble
         self.streaming = False
-        self.connect()
+        if self.connect():
+            print("INFO: Vibrotactor array connected!")
+        else:
+            print("INFO: Vibrotactor array not found!")
 
     def connect(self):
         self.uart_connection = None
@@ -64,11 +67,9 @@ class VibrotactorArray:
                             break
                     self.ble.stop_scan()
                 except BluetoothError:
-                    print("Retrying...")
-                    print(traceback.print_exc())
+                    pass
                 except BleakError:
-                    print("Retrying...")
-                    print(traceback.print_exc())
+                    pass
         if self.uart_connection and self.uart_connection.connected:
             self.uart_service = self.uart_connection[UARTService]
             return True
