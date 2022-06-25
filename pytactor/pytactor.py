@@ -179,3 +179,9 @@ class VibrotactorArray:
     @staticmethod
     def get_ble_instance():
         return BLERadio()
+
+    @staticmethod
+    def disconnect_ble_devices(ble_instance: BLERadio):
+        for connection in ble_instance.connections:
+            print(f"INFO: Disconnected from vibrotactor: {connection}")
+            connection.disconnect()

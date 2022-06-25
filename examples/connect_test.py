@@ -11,3 +11,9 @@ vta_1.trigger_vib()
 vta_1.start_imu()
 
 time.sleep(10)
+
+VibrotactorArray.disconnect_ble_devices(ble)
+
+vta_1 = VibrotactorArray(ble)
+
+time.sleep(10)
