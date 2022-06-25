@@ -51,10 +51,14 @@ class VibrotactorArray:
         self.uart_service = None
         self.ble = ble
         self.streaming = False
+        self.connected = False
         if self.connect():
             print("INFO: Vibrotactor array connected!")
         else:
             print("INFO: Vibrotactor array not found!")
+
+    def is_connected(self):
+        return self.connected
 
     def connect(self):
         self.uart_connection = None
@@ -72,6 +76,7 @@ class VibrotactorArray:
                     pass
         if self.uart_connection and self.uart_connection.connected:
             self.uart_service = self.uart_connection[UARTService]
+            self.connected = True
             return True
         else:
             return False
